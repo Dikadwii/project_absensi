@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Absensi Kelas - {{ kelas['nama_kelas'] }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .attendance-form { display: grid; gap: 0.5rem; }
+        .attendance-row { display:flex; gap:1rem; align-items:center; padding:0.5rem 0; }
+        .attendance-row label { flex:1; }
+        .status-select { width: 160px; }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <h1>Absensi: {{ kelas['nama_kelas'] }}</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('detail_kelas', kelas_id=kelas['id']) }}">Kembali</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <p>Guru: <strong>{{ guru['nama'] }}</strong></p>
+        <p>Tanggal: <strong>{{ today }}</strong></p>
+
+        {% if message %}
+            <div class="{{ 'alert-error' if msg_type=='error' else 'alert-success' }}">{{ message }}</div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('kelas_absensi', kelas_id=kelas['id']) }}">
+            <div class="attendance-form">
+                {% for s in siswa_list %}
+                    <div class="attendance-row">
+                        <label>{{ s['nama'] }} ({{ s['nis'] }})</label>
+                        <select name="status_{{ s['id'] }}" class="status-select">
+                            <option value="">-- Pilih --</option>
+                            <option value="Hadir" {% if attendance_map.get(s['id'])=='Hadir' %}selected{% endif %}>Hadir</option>
+                            <option value="Alpha" {% if attendance_map.get(s['id'])=='Alpha' %}selected{% endif %}>Alpha</option>
+                            <option value="Izin" {% if attendance_map.get(s['id'])=='Izin' %}selected{% endif %}>Izin</option>
+                            <option value="Sakit" {% if attendance_map.get(s['id'])=='Sakit' %}selected{% endif %}>Sakit</option>
+                        </select>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit">Simpan Absensi Hari Ini</button>
+        </form>
+    </div>
+</body>
+</html>

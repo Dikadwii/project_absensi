@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Siswa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+      
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f3f4f6;
+        }
+        .login-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h2 {
+            text-align: center;
+            color: #0a66c2;
+            margin-bottom: 25px;
+        }
+        .login-card input[type="text"],
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .login-card button {
+            width: 100%;
+            background-color: #0a66c2;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .login-card button:hover {
+            background-color: #0858a3;
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Login Siswa</h2>
+        
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('siswa_login') }}">
+            <input type="text" id="nis" name="nis" placeholder="Masukkan NIS Anda" required>
+
+            <label for="kelas_id">Pilih Kelas (jika belum terdaftar)</label>
+            <select id="kelas_id" name="kelas_id">
+                <option value="">-- Pilih Kelas Anda --</option>
+                {% for k in kelas_list %}
+                <option value="{{ k['id'] }}">{{ k['nama_kelas'] }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="password" id="password" name="password" placeholder="Password  (Guru)" required>
+
+
+            <button type="submit">Masuk</button>
+
+            <p> kembali <a href="/login">klik di sini</a></p>
+        </form>
+    </div>
+   
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Laporan Absensi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="topbar">
+        <h1>Index Laporan Absensi</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('dashboard') }}">Kembali</a>
+        </div>
+    </div>
+
+    <div class="container-full">
+        <div class="card">
+            <h2>Pilih Siswa untuk Melihat Laporan</h2>
+            {% if siswa_list and siswa_list|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>NIS</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in siswa_list %}
+                    <tr>
+                        <td>{{ s['nis'] }}</td>
+                        <td>{{ s['nama'] }}</td>
+                        <td>{{ (get_nama_kelas_by_id(s['kelas_id']) if s['kelas_id'] else 'Belum Terdaftar') }}</td>
+                        <td><a href="{{ url_for('laporan_absensi', siswa_id=s['id']) }}">Lihat Laporan</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Tidak ada data siswa.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

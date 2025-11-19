@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login & Register Guru</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-full" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
+        <div class="card" style="max-width:420px;width:100%;">
+            <h2 style="margin-bottom:6px">Login Guru</h2>
+            <p class="text-muted" style="margin-top:0;margin-bottom:12px">Masuk menggunakan akun guru Anda</p>
+            {% if error %}<div class="card" style="background:#fff3f2;border-left:4px solid var(--danger);padding:10px;margin-bottom:10px;color:var(--danger)">{{ error }}</div>{% endif %}
+            {% if success %}<div class="card" style="background:#ecfdf5;border-left:4px solid var(--success);padding:10px;margin-bottom:10px;color:var(--success)">{{ success }}</div>{% endif %}
+            <form method="POST" action="/login" style="display:flex;flex-direction:column;gap:10px">
+                <input type="text" name="email" placeholder="Email" required class="input-field">
+                <input type="password" name="password" placeholder="Password" required class="input-field">
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p style="margin-top:10px;font-size:.95rem">Belum punya akun? <a href="/register">Register</a></p>
+            <p style="margin-top:4px;font-size:.95rem">Anda siswa? <a href="{{ url_for('siswa_login') }}">Login di sini</a></p>
+        </div>
+    </div>
+</body>
+</html>
