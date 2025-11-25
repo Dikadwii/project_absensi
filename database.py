@@ -205,10 +205,33 @@ def get_siswa_by_nis(nis):
     conn.close()
     return siswa
 
+def get_siswa_by_nama(nama):
+    # Mengambil data siswa lengkap berdasarkan NAMA.
+    conn = get_db_connection()
+    siswa = conn.execute("SELECT * FROM siswa WHERE nama = ?", (nama,)).fetchone()
+    conn.close()
+    return siswa
+
 def get_siswa_by_id(siswa_id):
     # Mengambil data siswa lengkap berdasarkan ID.
     conn = get_db_connection()
     siswa = conn.execute("SELECT * FROM siswa WHERE id = ?", (siswa_id,)).fetchone()
+    conn.close()
+    return siswa
+
+
+def get_siswa_by_search(nama, kelas_id=None):
+    """Cari siswa berdasarkan nama (partial match). Jika `kelas_id` diberikan, batasi pencarian ke kelas tersebut.
+    Mengembalikan satu baris (first match) atau None."""
+    conn = get_db_connection()
+    params = []
+    query = "SELECT * FROM siswa WHERE nama LIKE ?"
+    params.append('%' + nama + '%')
+    if kelas_id:
+        query += " AND kelas_id = ?"
+        params.append(kelas_id)
+    query += " ORDER BY nama LIMIT 1"
+    siswa = conn.execute(query, tuple(params)).fetchone()
     conn.close()
     return siswa
 

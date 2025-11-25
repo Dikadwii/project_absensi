@@ -18,7 +18,13 @@
     <div class="container-full">
         <div class="card">
             <form method="GET" action="{{ url_for('catat_absensi') }}" class="filter-form">
-                <input type="text" name="nis" value="{{ request.args.get('nis','') }}" placeholder="Masukkan NIS" />
+                <input type="text" name="nama" value="{{ request.args.get('nama','') }}" placeholder="Masukkan Nama" />
+                <select name="kelas_id">
+                    <option value="">Semua Kelas</option>
+                    {% for k in kelas_list %}
+                        <option value="{{ k['id'] }}" {% if selected_kelas_id and (selected_kelas_id|string) == (k['id']|string) %}selected{% endif %}>{{ k['nama_kelas'] }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit" class="btn">Cari Siswa</button>
             </form>
 
@@ -26,7 +32,7 @@
                 <hr />
                 {% if not siswa %}
                     <div class="card">
-                        <p class="text-muted">Siswa dengan NIS tersebut tidak ditemukan.</p>
+                        <p class="text-muted">Siswa dengan nama "<strong>{{ request.args.get('nama','') }}</strong>"{% if selected_kelas_id %} pada kelas "<strong>{{ get_nama_kelas_by_id(selected_kelas_id|int) }}</strong>"{% endif %} tidak ditemukan.</p>
                     </div>
                 {% else %}
                     <div class="card" style="display:flex;gap:18px;align-items:center;">
@@ -34,6 +40,7 @@
                         <div style="flex:1">
                             <h2 style="margin:0">{{ siswa['nama'] }}</h2>
                             <p class="small">NIS: <strong>{{ siswa['nis'] }}</strong></p>
+                            <p class="small">Kelas: <strong>{% if siswa['kelas_id'] %}{{ get_nama_kelas_by_id(siswa['kelas_id']) }}{% else %}Belum terdaftar{% endif %}</strong></p>
                             <p class="small">Tanggal: <strong>{{ tanggal }}</strong> (hari ini)</p>
                             {% if exists %}
                                 <p class="pill">Sudah tercatat: <strong>{{ existing_status }}</strong></p>

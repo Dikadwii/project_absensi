@@ -5,8 +5,10 @@ import os
 from database import (
     init_db, get_db_connection, get_user_by_id, get_all_users, get_list_mapel,
     get_all_kelas, add_kelas, delete_kelas_by_id, get_kelas_by_id, 
-    get_siswa_by_kelas, add_new_siswa, delete_siswa_by_id, get_siswa_by_nis,
-    add_attendance, attendance_exists, get_attendance_for_student, update_siswa_kelas
+    get_siswa_by_kelas, add_new_siswa, delete_siswa_by_id, get_siswa_by_nis, get_siswa_by_nama,
+    add_attendance, attendance_exists, get_attendance_for_student, update_siswa_kelas,
+    get_nama_kelas_by_id, get_siswa_by_search,
+
 )
 
 app = Flask(__name__)
@@ -236,7 +238,8 @@ def siswa_login():
 @app.route('/catat_absensi')
 @login_required
 def catat_absensi():
-    nis = request.args.get('nis')
+    nama = request.args.get('nama')
+    kelas_id = request.args.get('kelas_id')
     import datetime
     tanggal = datetime.date.today().isoformat()
 
@@ -244,9 +247,17 @@ def catat_absensi():
     exists = False
     existing_status = None
     checked = False
-    if nis:
+
+    kelas_list = get_all_kelas()
+
+    if nama:
         checked = True
-        siswa = get_siswa_by_nis(nis)
+        # try to find by name and optional class
+        try:
+            k = int(kelas_id) if kelas_id else None
+        except Exception:
+            k = None
+        siswa = get_siswa_by_search(nama, k)
         if siswa:
             if attendance_exists(siswa['id'], tanggal):
                 exists = True
@@ -261,7 +272,10 @@ def catat_absensi():
                            exists=exists, 
                            existing_status=existing_status, 
                            tanggal=tanggal, 
-                           checked=checked)
+                           checked=checked,
+                           kelas_list=kelas_list,
+                           selected_kelas_id=kelas_id,
+                           get_nama_kelas_by_id=get_nama_kelas_by_id)
 
 
 @app.route('/siswa/dashboard')
@@ -326,16 +340,21 @@ def catat_absensi_post():
     if not guru or guru['role'] != 'guru':
         return "Hanya guru yang dapat mengakses ini", 403
     siswa_id = request.form.get('siswa_id')
-    nis = request.form.get('nis')
+    nama = request.form.get('nama')
+    kelas_id = request.form.get('kelas_id')
     status = request.form.get('status')
     import datetime
     tanggal = datetime.date.today().isoformat()
-    if not siswa_id and nis:
-        s = get_siswa_by_nis(nis)
+    if not siswa_id and nama:
+        try:
+            k = int(kelas_id) if kelas_id else None
+        except Exception:
+            k = None
+        s = get_siswa_by_search(nama, k)
         if s:
             siswa_id = s['id']
     if not siswa_id:
-        return redirect(url_for('catat_absensi', nis=nis, tanggal=tanggal, msg='Siswa tidak ditemukan', type='error'))
+        return redirect(url_for('catat_absensi', nama=nama, tanggal=tanggal, msg='Siswa tidak ditemukan', type='error'))
     if attendance_exists(siswa_id, tanggal):
         return redirect(url_for('dashboard', msg='Absensi sudah dicatat untuk siswa ini pada tanggal tersebut', type='error'))
     ok = add_attendance(siswa_id, status, tanggal, recorded_by=guru['id'])
