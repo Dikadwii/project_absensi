@@ -7,7 +7,7 @@ for r in rows:
     print(dict(r))
 for r in rows:
     print('Deleting', r['id'], delete_siswa_by_id(r['id']))
-# show remaining 
+
 rows2 = conn.execute("SELECT id,nama,nis,kelas_id FROM siswa ORDER BY id").fetchall()
 print('Remaining count:', len(rows2))
 for r in rows2:
