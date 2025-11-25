@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siswa Kelas {{ kelas['nama_kelas'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        body { 
+            font-family: sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container-full {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+       
+        .alert-success {
+            background-color: #d1e7dd;
+            border-left: 4px solid #0f5132;
+            color: #0f5132;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            border-left: 4px solid #842029;
+            color: #842029;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+      
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+       
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box; 
+        }
+      
+        .btn-primary {
+            background-color: #0a66c2; 
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0758a6;
+        }
+        .btn-delete {
+            color: #dc3545;
+            text-decoration: none;
+            transition: color 0.2s;
+            background: none; 
+            border: none; 
+            padding: 0; 
+            cursor: pointer;
+            font-weight: 500; 
+            font-size: 0.875rem; 
+        }
+        .btn-delete:hover {
+            color: #bd2130;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            color: #555; 
+        }
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .grid-3-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Siswa Kelas: {{ kelas['nama_kelas'] }}</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('manage_kelas') }}" class="btn-secondary" style="color: rgb(12, 11, 11); text-decoration: none;">
+                &larr; Kembali ke Daftar Kelas
+            </a>
+        </div>
+    </div>
+
+    <div class="container-full">
+        <header style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; font-weight: bold; color: #333;">
+                Manajemen Siswa Kelas: {{ kelas['nama_kelas'] }}
+            </h2>
+            <p style="font-size: 0.875rem; color: #666; margin-top: 5px;">Total Siswa: {{ siswa_list | length }}</p>
+        </header>
+
+        {% if message %}
+        <div class="{% if msg_type == 'error' %}alert-error{% else %}alert-success{% endif %}" role="alert">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: #333; margin-bottom: 15px;">Tambah Siswa Baru</h3>
+            <form method="POST" action="{{ url_for('add_siswa_to_kelas', kelas_id=kelas['id']) }}" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="grid-3-col">
+                    <input type="text" name="nama" placeholder="Nama Siswa" required>
+                    <input type="text" name="nis" placeholder="NIS (Nomor Induk Siswa)" required>
+                    <input type="password" name="password" placeholder="Password Siswa" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    Tambahkan Siswa
+                </button>
+            </form>
+        </div>
+  
+
+        <div class="card">
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: #333; margin-bottom: 15px;">Daftar Siswa</h3>
+            
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>NIS</th>
+                            <th>Nama Siswa</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for siswa in siswa_list %}
+                        <tr>
+                            <td style="color: #555;">{{ siswa['nis'] }}</td>
+                            <td style="font-weight: 500;">{{ siswa['nama'] }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('delete_siswa_route', siswa_id=siswa['id']) }}"  
+                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus siswa {{ siswa['nama'] }} (NIS: {{ siswa['nis'] }})?');"  
+                                      style="display: inline-block;">
+                                    <button type="submit" class="btn-delete">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #666;">
+                                Belum ada siswa terdaftar di kelas ini.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

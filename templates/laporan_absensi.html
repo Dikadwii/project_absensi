@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Absensi Siswa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { 
+            font-family: sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container-full {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #0a66c2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-full">
+        {# Defensive defaults to avoid UndefinedError in templates #}
+        {% set siswa = siswa if (siswa is defined) else {} %}
+        {% set laporan_bulanan = laporan_bulanan if (laporan_bulanan is defined) else {} %}
+        {% set laporan_semester = laporan_semester if (laporan_semester is defined) else {} %}
+        <h1>Laporan Absensi Siswa: 
+            {% if siswa is defined and siswa %}
+                {{ siswa['nama'] if ('nama' in siswa) else (siswa['nama_siswa'] if 'nama_siswa' in siswa else 'Tidak Diketahui') }}
+            {% else %}
+                Siswa Tidak Diketahui
+            {% endif %}
+        </h1>
+        <div class="card">
+            <h2>Rekap Absensi Bulanan</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bulan</th>
+                        <th>Hadir</th>
+                        <th>Sakit</th>
+                        <th>Izin</th>
+                        <th>Alpa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bulan, data in (laporan_bulanan|default({})).items() %}
+                    <tr>
+                        <td>{{ bulan }}</td>
+                        <td>{{ data['hadir'] if 'hadir' in data else 0 }}</td>
+                        <td>{{ data['sakit'] if 'sakit' in data else 0 }}</td>
+                        <td>{{ data['izin'] if 'izin' in data else 0 }}</td>
+                        <td>{{ data['alpa'] if 'alpa' in data else 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Rekap Absensi Semester</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>Hadir</th>
+                        <th>Sakit</th>
+                        <th>Izin</th>
+                        <th>Alpa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for semester, data in (laporan_semester|default({})).items() %}
+                    <tr>
+                        <td>{{ semester }}</td>
+                        <td>{{ data['hadir'] if 'hadir' in data else 0 }}</td>
+                        <td>{{ data['sakit'] if 'sakit' in data else 0 }}</td>
+                        <td>{{ data['izin'] if 'izin' in data else 0 }}</td>
+                        <td>{{ data['alpa'] if 'alpa' in data else 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

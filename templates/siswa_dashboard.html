@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Siswa</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <h1>Dashboard Siswa</h1>
+        <div class="top-actions">
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2>Halo, {{ siswa['nama'] }}</h2>
+        <p>NIS: {{ siswa['nis'] }}</p>
+        {% if kelas %}
+            <p>Kelas: <strong>{{ kelas['nama_kelas'] }}</strong></p>
+        {% else %}
+            <p>Kelas: <em>Belum terdaftar</em></p>
+        {% endif %}
+      
+
+        <section class="attendance">
+            <h3>Absen Hari Ini ({{ today }})</h3>
+            {% if has_today %}                                         
+                <p>Anda sudah mencatat absensi hari ini: <strong>{{ today_status }}</strong></p>
+            {% else %}
+                <form method="POST" action="{{ url_for('siswa_absen') }}">
+                    <input type="hidden" name="siswa_id" value="{{ siswa['id'] }}">
+                    <select name="status" required>
+                        <option value="Hadir">Hadir</option>
+                        <option value="Alpha">Alpha</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Sakit">Sakit</option>
+                    </select>
+                    <button type="submit">Kirim Absen</button>
+                </form>
+            {% endif %}
+        </section>
+
+        <section class="attendance-history">
+            <h3>Riwayat Absensi</h3>
+            <table class="teacher-table">
+                <thead><tr><th>Tanggal</th><th>Status</th><th>Dicatat Oleh</th></tr></thead>
+                <tbody>
+                    {% for a in attendance %}
+                    <tr>
+                    <td>{{ a['tanggal'] }}</td>
+                    <td>{{ a['status'] }}</td>
+                    <td>{{ a['recorded_by_name'] or (a['recorded_by'] or '-') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3">Belum ada data absensi</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Catat Absensi (Guru)</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/catat_absensi.css">
+</head>
+<body class="catat-page">
+    <header class="topbar">
+        <h1>Catat Absensi</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn-ghost">Kembali</a>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </div>
+    </header>
+
+    <div class="container-full">
+        <div class="card">
+            <form method="GET" action="{{ url_for('catat_absensi') }}" class="filter-form">
+                <input type="text" name="nis" value="{{ request.args.get('nis','') }}" placeholder="Masukkan NIS" />
+                <button type="submit" class="btn">Cari Siswa</button>
+            </form>
+
+            {% if checked %}
+                <hr />
+                {% if not siswa %}
+                    <div class="card">
+                        <p class="text-muted">Siswa dengan NIS tersebut tidak ditemukan.</p>
+                    </div>
+                {% else %}
+                    <div class="card" style="display:flex;gap:18px;align-items:center;">
+                        <div class="avatar">{{ siswa['nama'][0]|upper }}</div>
+                        <div style="flex:1">
+                            <h2 style="margin:0">{{ siswa['nama'] }}</h2>
+                            <p class="small">NIS: <strong>{{ siswa['nis'] }}</strong></p>
+                            <p class="small">Tanggal: <strong>{{ tanggal }}</strong> (hari ini)</p>
+                            {% if exists %}
+                                <p class="pill">Sudah tercatat: <strong>{{ existing_status }}</strong></p>
+                            {% else %}
+                                <p class="small">Belum tercatat. Pilih status untuk mencatat:</p>
+                                <form method="POST" action="{{ url_for('catat_absensi_post') }}" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                                    <input type="hidden" name="siswa_id" value="{{ siswa['id'] }}">
+                                    <button type="submit" name="status" value="Hadir" class="btn">Hadir</button>
+                                    <button type="submit" name="status" value="Izin" class="btn" style="background:linear-gradient(90deg,#f59e0b,#f97316);">Izin</button>
+                                    <button type="submit" name="status" value="Sakit" class="btn" style="background:linear-gradient(90deg,#10b981,#059669);">Sakit</button>
+                                    <button type="submit" name="status" value="Alpha" class="btn" style="background:linear-gradient(90deg,#ef4444,#dc2626);">Alpha</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div style="min-width:180px;text-align:right">
+                            {% if exists and existing_status %}
+                                <p class="small">Dicatat: <strong>{{ existing_status }}</strong></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

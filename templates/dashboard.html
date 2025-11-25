@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .selamat-datang {
+             width: 90%;
+            max-width: 1200px;
+            margin: 25px auto;
+            color: #000000;
+            padding: 20px;
+        }
+        .container-full {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .menu-card { 
+            display: block;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+   
+        .guru-list-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-form input, .filter-form select, .filter-form button {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .filter-form button {
+            background-color: #0a66c2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Halaman Dashboard</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="selamat-datang">
+         <h style="font-size: large; font-style: italic;">Selamat Datang
+             <span>{{ guru['nama'] }}</span>
+        </h3>
+        <h4>
+            Email
+             <span>{{ guru['email'] }}</span>
+        </h4>
+      
+    </div>
+
+    <div class="container-full">
+        <h2>Menu Utama Guru</h2>
+        
+        <div class="dashboard-grid">
+            
+            <a href="{{ url_for('manage_kelas') }}" class="menu-card" style="background-color: #cbf9ff;">
+                <h3>Manajemen Kelas & Siswa</h3>
+                <p>Kelola data kelas, tambah/edit/hapus siswa.</p>
+            </a>
+
+             <a href="{{ url_for('catat_absensi') }}" class="menu-card" style="background-color: #cbf9ff;">
+                <h3>Catat Absensi Harian</h3>
+                <p>Mencatat kehadiran siswa.</p>
+            </a>
+
+            <a href="{{ url_for('laporan_index') }}" class="menu-card" style="background-color: #cbf9ff;">
+                <h3>Laporan Absensi</h3>
+                <p>Lihat rekap absensi bulanan dan semester.</p>
+
+            </a>
+
+            <a href="{{ url_for('edit_profile') }}" class="menu-card" style="background-color: #cbf9ff;">
+                <h3>Edit Profil Saya</h3>
+                <p>Ubah mata pelajaran dan password Anda.</p>
+            </a>
+        </div>
+        
+
+        <div class="guru-list-section">
+            <h3>Daftar Guru Sekolah</h3>
+            
+            <form method="GET" action="{{ url_for('dashboard') }}" class="filter-form">
+                <input type="text" name="search" placeholder="Cari Nama/Mapel..." value="{{ current_search }}">
+                <select name="mapel">
+                    <option value="Semua">-- Semua Mata Pelajaran --</option>
+                    {% for mapel in mapel_list %}
+                    <option value="{{ mapel }}" {% if mapel == current_mapel %}selected{% endif %}>{{ mapel }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Filter/Cari</button>
+            </form>
+            
+            {% if all_users %}
+            <table class="teacher-table">
+                <thead>
+                    <tr>
+                        <th>Nama Guru</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Role</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in all_users %}
+                    <tr>
+                        <td>{{ user['nama'] }}</td>
+                        <td>{{ user['mata_pelajaran'] }}</td>
+                        <td>{{ user['role'] | capitalize }}</td>
+                        <td>
+                            <a href="{{ url_for('lihat_detail_guru', guru_id=user['id']) }}">Lihat Detail</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Tidak ada data guru yang ditemukan dengan kriteria tersebut.</p>
+            {% endif %}
+        </div>
+        
+    </div>
+</body>
+</html>

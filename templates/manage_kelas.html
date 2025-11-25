@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Kelas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        body { 
+            font-family: sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container-full {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+      
+        .alert-success {
+            background-color: #d1e7dd; /* Mirip bg-green-100 */
+            border-left: 4px solid #0f5132; /* Mirip border-green-500 */
+            color: #0f5132; /* Mirip text-green-700 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .alert-error {
+            background-color: #f8d7da; /* Mirip bg-red-100 */
+            border-left: 4px solid #842029; /* Mirip border-red-500 */
+            color: #842029; /* Mirip text-red-700 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+    
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            flex-grow: 1; /* Agar mengambil ruang yang tersedia */
+            box-sizing: border-box; 
+        }
+        
+        .btn-primary {
+            background-color: #0a66c2; /* Warna tombol dari contoh kedua */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap; /* Mencegah tombol pecah */
+        }
+        .btn-primary:hover {
+            background-color: #0758a6;
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .btn-delete:hover {
+            color: #bd2130;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            color: #555; 
+        }
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .form-flex {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        @media (min-width: 640px) { 
+            .form-flex {
+                flex-direction: row;
+            }
+            .form-flex button {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Manajemen Kelas</h1>
+        <div class="top-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn-secondary" style="color: rgb(14, 10, 10); text-decoration: none;">
+                &larr; Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container-full">
+        <header style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; font-weight: bold; color: #333;">
+                Daftar Kelas Sekolah
+            </h2>
+        </header>
+
+        {% if message %}
+        <div class="{% if msg_type == 'error' %}alert-error{% else %}alert-success{% endif %}" role="alert">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: #333; margin-bottom: 15px;">Tambah Kelas Baru</h3>
+            <form method="POST" action="{{ url_for('manage_kelas') }}" class="form-flex">
+                <input type="hidden" name="action" value="add">
+                <input type="text" name="nama_kelas" placeholder="Contoh: XI IPA 2" required>
+                <button type="submit" class="btn-primary">
+                    Tambah Kelas
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: #333; margin-bottom: 15px;">Daftar Kelas Aktif ({{ kelas_list | length }})</h3>
+            
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Kelas</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kelas in kelas_list %}
+                        <tr class="hover:bg-gray-50">
+                            <td>
+                                <a href="{{ url_for('detail_kelas', kelas_id=kelas['id']) }}" class="text-link" style="color: #0a66c2; text-decoration: none; font-weight: 600;">
+                                    {{ kelas['nama_kelas'] }}
+                                </a>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('delete_kelas', kelas_id=kelas['id']) }}"  
+                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas {{ kelas['nama_kelas'] }}? Tindakan ini tidak dapat dibatalkan dan akan melepaskan semua siswa dari kelas ini.');"  
+                                      style="display: inline-block;">
+                                    <button type="submit" class="btn-delete" style="background: none; border: none; padding: 0; cursor: pointer;">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: #666;">
+                                Belum ada kelas yang ditambahkan.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
