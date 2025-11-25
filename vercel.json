@@ -1,15 +1,17 @@
 {
-    "build":[
+    "builds": [
         {
             "src": "app.py",
             "use": "@vercel/python"
         }
     ],
-    "routes":[
+    "routes": [
         {
             "src": "/(.*)",
-            "dest": "/app.py"
+            "dest": "app.py"
         }
-    ]
-
+    ],
+    "env": {
+        "PYTHONUNBUFFERED": "1"
+    }
 }
