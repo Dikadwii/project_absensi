@@ -1,7 +1,12 @@
 import sqlite3
+import os
+import tempfile
 from werkzeug.security import generate_password_hash 
 
-DATABASE = 'database.db'
+# Use an explicit DATABASE_PATH when provided (e.g. Vercel env var).
+# Default to a writable temp directory to avoid permission errors on serverless
+# platforms where the project root is read-only.
+DATABASE = os.environ.get('DATABASE_PATH') or os.path.join(tempfile.gettempdir(), 'database.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
