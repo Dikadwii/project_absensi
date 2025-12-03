@@ -42,20 +42,10 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        # Debug logs (no passwords logged) to help diagnose deployed login issues
-        print(f"[guru_login] attempt email={email}")
         conn = get_db_connection()
         user = conn.execute("SELECT * FROM guru WHERE email = ?", (email,)).fetchone()
         conn.close()
-        print(f"[guru_login] lookup result: {'found id='+str(user['id']) if user else 'NOT FOUND'}")
-        pw_ok = False
-        try:
-            if user:
-                pw_ok = check_password_hash(user['password'], password)
-        except Exception as e:
-            print(f"[guru_login] password check error: {e}")
-        print(f"[guru_login] password match: {pw_ok}")
-        if user and pw_ok:
+        if user and check_password_hash(user['password'], password):
             session['user_id'] = user['id']
             return redirect(url_for('dashboard'))
         return render_template('login.html', error="Email atau password salah")
@@ -217,10 +207,7 @@ def siswa_login():
         password_input = request.form.get('password')
         selected_kelas = request.form.get('kelas_id')
         try:
-            # Debug log: record login attempt (no passwords)
-            print(f"[siswa_login] attempt nis={nis_input} selected_kelas={selected_kelas}")
             siswa = get_siswa_by_nis(nis_input)
-            print(f"[siswa_login] lookup result: {'found id='+str(siswa['id']) if siswa else 'NOT FOUND'}")
 
             if siswa:
                 if check_password_hash(siswa['password'], password_input):
