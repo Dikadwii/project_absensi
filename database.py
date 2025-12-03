@@ -71,6 +71,25 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Seed a default guru account when running in a fresh environment (e.g. serverless)
+    # This uses environment variables ADMIN_EMAIL and ADMIN_PASSWORD. If provided and
+    # no guru records exist, a default guru will be created so you can login on first deploy.
+    try:
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        conn = get_db_connection()
+        cur = conn.execute("SELECT COUNT(*) as cnt FROM guru").fetchone()
+        exists = cur['cnt'] if cur is not None else 0
+        if exists == 0 and admin_email and admin_password:
+            hashed = generate_password_hash(admin_password)
+            conn.execute("INSERT INTO guru (email, nama, mata_pelajaran, password, role) VALUES (?, ?, ?, ?, ?)",
+                         (admin_email, os.environ.get('ADMIN_NAME', 'Admin'), os.environ.get('ADMIN_MAPEL', 'Administrator'), hashed, 'guru'))
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        # avoid breaking init on serverless; log to stdout
+        print('Warning: seeding default admin failed:', e)
+
 
 
 def get_user_by_id(user_id):
