@@ -207,7 +207,10 @@ def siswa_login():
         password_input = request.form.get('password')
         selected_kelas = request.form.get('kelas_id')
         try:
+            # Debug log: record login attempt (no passwords)
+            print(f"[siswa_login] attempt nis={nis_input} selected_kelas={selected_kelas}")
             siswa = get_siswa_by_nis(nis_input)
+            print(f"[siswa_login] lookup result: {'found id='+str(siswa['id']) if siswa else 'NOT FOUND'}")
 
             if siswa:
                 if check_password_hash(siswa['password'], password_input):
