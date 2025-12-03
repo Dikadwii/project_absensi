@@ -42,10 +42,20 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        # Debug logs (no passwords logged) to help diagnose deployed login issues
+        print(f"[guru_login] attempt email={email}")
         conn = get_db_connection()
         user = conn.execute("SELECT * FROM guru WHERE email = ?", (email,)).fetchone()
         conn.close()
-        if user and check_password_hash(user['password'], password):
+        print(f"[guru_login] lookup result: {'found id='+str(user['id']) if user else 'NOT FOUND'}")
+        pw_ok = False
+        try:
+            if user:
+                pw_ok = check_password_hash(user['password'], password)
+        except Exception as e:
+            print(f"[guru_login] password check error: {e}")
+        print(f"[guru_login] password match: {pw_ok}")
+        if user and pw_ok:
             session['user_id'] = user['id']
             return redirect(url_for('dashboard'))
         return render_template('login.html', error="Email atau password salah")
